@@ -1,5 +1,7 @@
 {
   "name": "吵架王 (Quarrel King) - AI 军事集团",
   "description": "一款基于 Gemini 3 的吵架辅助工具。通过『诸葛吵』制定战术、『顶嘴侠』生成话术、『法理狮』提供规则保障，全方位助你在任何言语争端中反败为胜。",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }

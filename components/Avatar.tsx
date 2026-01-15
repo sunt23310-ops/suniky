@@ -16,7 +16,7 @@ const Avatar: React.FC<AvatarProps> = ({ role, size = 'md' }) => {
 
   if (role === Role.USER) {
     return (
-      <div className={`${sizeClasses[size]} rounded-full bg-indigo-500 flex items-center justify-center text-white shadow-lg`}>
+      <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white shadow-xl border border-white/10 overflow-hidden`}>
         <i className="fa-solid fa-user"></i>
       </div>
     );
@@ -24,9 +24,14 @@ const Avatar: React.FC<AvatarProps> = ({ role, size = 'md' }) => {
 
   const config = ROLE_CONFIGS[role];
   return (
-    <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br ${config.color} flex items-center justify-center p-0.5 shadow-lg border-2 border-slate-700`}>
-      <div className="w-full h-full rounded-full overflow-hidden bg-slate-800 flex items-center justify-center">
-        <i className={`fa-solid ${config.icon} text-white ${size === 'lg' ? 'text-2xl' : 'text-sm'}`}></i>
+    <div className={`${sizeClasses[size]} rounded-full bg-gradient-to-br ${config.color} p-0.5 shadow-2xl border border-white/20 relative group overflow-hidden`}>
+      <img 
+        src={config.avatar} 
+        alt={config.name} 
+        className="w-full h-full rounded-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 brightness-90 group-hover:brightness-110" 
+      />
+      <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <i className={`fa-solid ${config.icon} text-white ${size === 'lg' ? 'text-2xl' : 'text-xs'}`}></i>
       </div>
     </div>
   );
