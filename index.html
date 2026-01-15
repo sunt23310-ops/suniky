@@ -1,60 +1,78 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>吵架王 - AI 军事集团</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>吵架王 - 战术策略集团</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;700;900&display=swap');
+        
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-orange: #ffaa00;
+            --neon-purple: #bd00ff;
+            --bg-deep: #020617;
+        }
+
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background-color: #020617;
-            color: #f8fafc;
+            font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-deep);
+            color: #ffffff;
             overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(0, 243, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(189, 0, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(255, 170, 0, 0.08) 0%, transparent 40%);
+            -webkit-tap-highlight-color: transparent;
         }
-        .chat-container {
-            height: calc(100vh - 180px);
+
+        /* 战术网格背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
         }
+
         ::-webkit-scrollbar {
-            width: 5px;
+            width: 3px;
         }
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: rgba(0, 0, 0, 0.1);
         }
         ::-webkit-scrollbar-thumb {
-            background: #1e293b;
+            background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-purple));
             border-radius: 10px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #334155;
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(15px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+
+        .neon-border-cyan { border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 0 10px rgba(0, 243, 255, 0.1); }
+        
+        @keyframes pulse-cyan {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
         }
-        .animate-pulse-red {
-            animation: pulse-red 2s infinite;
+        .animate-glow-cyan { animation: pulse-cyan 3s infinite; }
+
+        .grad-text {
+            background: linear-gradient(135deg, #fff 0%, var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-        .scan-line {
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(to right, transparent, rgba(99, 102, 241, 0.5), transparent);
-            animation: scan 3s linear infinite;
-            z-index: 1;
-        }
-        .bg-grid {
-            background-size: 40px 40px;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+
+        /* 修复移动端高度问题 */
+        .h-screen {
+            height: 100dvh;
         }
     </style>
 <script type="importmap">
@@ -68,7 +86,7 @@
 }
 </script>
 </head>
-<body class="bg-grid">
+<body class="selection:bg-cyan-500/30">
     <div id="root"></div>
 </body>
 </html>

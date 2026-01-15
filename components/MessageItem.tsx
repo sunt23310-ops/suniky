@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Message, Role, ROLE_CONFIGS } from '../types';
 import Avatar from './Avatar';
@@ -13,6 +12,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
   const config = !isUser ? ROLE_CONFIGS[message.role as Exclude<Role, Role.USER>] : null;
   const [copied, setCopied] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isImgZoomed, setIsImgZoomed] = useState(false);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -29,57 +29,50 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
   };
 
   const renderContent = (content: string) => {
-    if (isUser) return <div className="opacity-100 font-medium">{content}</div>;
+    if (isUser) return <div className="font-bold text-sm sm:text-base tracking-tight leading-relaxed italic text-white/90">{content}</div>;
     
-    const parts = content.split(/(「终极绝杀」[:：]?.*)/s);
+    // 匹配所有的绝杀标签及其后的内容
+    const parts = content.split(/(「(?:终极绝杀|最终绝杀|秒语绝杀|最终妙语|绝杀)」[:：]?.*)/s);
     return parts.map((part, index) => {
-      if (part.startsWith('「终极绝杀」')) {
-        const textToCopy = part.replace(/「终极绝杀」[:：]?/, '').trim();
+      const isKill = /绝杀|妙语/.test(part);
+      if (isKill) {
+        const textToCopy = part.replace(/「[^」]+」[:：]?/, '').trim();
         return (
-          <div key={index} className="mt-4 overflow-hidden rounded-xl border border-indigo-500/40 bg-slate-950/60 shadow-2xl shadow-indigo-500/20 group/kill transition-all hover:border-indigo-400">
-            <div className="flex items-center justify-between bg-gradient-to-r from-indigo-900/40 to-slate-900/40 px-3 py-2 border-b border-indigo-500/20">
-              <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                </span>
-                终极绝杀 · 致命一击
+          <div key={index} className="mt-3 sm:mt-5 overflow-hidden rounded-xl sm:rounded-2xl glass-card border border-cyan-400/40 group/kill relative shadow-xl">
+            <div className="flex items-center justify-between bg-gradient-to-r from-cyan-600/80 to-blue-800/80 px-3 sm:px-4 py-1.5 sm:py-2">
+              <div className="text-[8px] sm:text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                <i className="fa-solid fa-skull-crossbones animate-pulse"></i>
+                反击建议
               </div>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => handleCopy(textToCopy)}
-                  className={`text-[10px] px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 font-bold border ${
-                    copied 
-                      ? 'bg-green-500/20 text-green-400 border-green-500/30' 
-                      : 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20 hover:bg-indigo-500/30'
-                  }`}
-                >
-                  {copied ? (
-                    <><i className="fa-solid fa-check"></i> 已复制</>
-                  ) : (
-                    <><i className="fa-solid fa-copy"></i> 复制</>
-                  )}
-                </button>
-              </div>
+              <button 
+                onClick={() => handleCopy(textToCopy)}
+                className={`text-[8px] sm:text-[9px] px-2 sm:px-3 py-1 rounded-md transition-all flex items-center gap-1.5 font-black uppercase tracking-widest ${
+                  copied ? 'bg-green-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
+                }`}
+              >
+                {copied ? <><i className="fa-solid fa-check"></i> 已复制</> : <><i className="fa-solid fa-copy"></i> 复制</>}
+              </button>
             </div>
-            <div 
-              onClick={() => handleCopy(textToCopy)}
-              className="p-5 cursor-pointer transition-colors relative"
-            >
-              <div className="text-white font-bold italic text-xl leading-relaxed relative z-10 group-hover/kill:text-indigo-100 transition-colors">
-                <span className="text-indigo-500/40 text-4xl font-serif absolute -top-4 -left-3 select-none">“</span>
+            
+            <div onClick={() => handleCopy(textToCopy)} className="p-4 sm:p-5 cursor-pointer hover:bg-cyan-400/5 transition-all">
+              <div className="text-white font-bold italic text-base sm:text-lg md:text-xl leading-relaxed tracking-tight">
                 {textToCopy}
-                <span className="text-indigo-500/40 text-4xl font-serif absolute -bottom-8 -right-1 select-none">”</span>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover/kill:opacity-100 transition-opacity"></div>
+              <div className="mt-3 sm:mt-4 flex items-center gap-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-cyan-400/20 to-transparent"></div>
+                <div className="text-[7px] sm:text-[8px] font-black text-cyan-400 uppercase mono tracking-[0.2em] italic opacity-50">
+                   READY TO SEND
+                </div>
+              </div>
             </div>
           </div>
         );
       }
       return (
-        <div key={index} className="opacity-95 space-y-2">
-          {part.split('\n').map((line, lIdx) => (
-            <div key={lIdx} className={line.startsWith('「') ? 'font-bold text-indigo-300/90 mt-2 text-xs uppercase tracking-wider' : ''}>
+        <div key={index} className="space-y-2 sm:space-y-3">
+          {part.split('\n').filter(l => l.trim()).map((line, lIdx) => (
+            <div key={lIdx} className={line.startsWith('「') ? 'font-black text-cyan-300 text-[10px] sm:text-xs tracking-widest mt-3 flex items-center gap-1.5' : 'text-slate-300 font-medium text-xs sm:text-sm leading-relaxed'}>
+              {line.startsWith('「') && <div className="w-1 h-1 bg-cyan-400 rounded-sm rotate-45 shrink-0"></div>}
               {line}
             </div>
           ))}
@@ -89,50 +82,51 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
   };
 
   return (
-    <div className={`flex w-full mb-10 ${isUser ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}>
-      <div className={`flex max-w-[95%] md:max-w-[80%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-        <div className={`flex-shrink-0 ${isUser ? 'ml-4' : 'mr-4'} mt-1`}>
+    <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-4 duration-500`}>
+      <div className={`flex max-w-[95%] sm:max-w-[80%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+        <div className={`flex-shrink-0 ${isUser ? 'ml-2 sm:ml-3' : 'mr-2 sm:mr-3'} mt-1`}>
           <div className="relative group/avatar">
-             <Avatar role={message.role} size={isUser ? 'sm' : 'md'} />
+             <Avatar role={message.role} size="sm" />
              {!isUser && (
-               <>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-slate-950 rounded-full shadow-lg"></div>
-                <button 
-                  onClick={handlePlayAudio}
-                  disabled={isPlaying}
-                  className="absolute -top-2 -right-2 bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center border border-indigo-400 shadow-lg opacity-0 group-hover/avatar:opacity-100 transition-opacity scale-90 hover:scale-110 active:scale-75"
-                >
-                  {isPlaying ? (
-                    <i className="fa-solid fa-circle-notch fa-spin text-[10px]"></i>
-                  ) : (
-                    <i className="fa-solid fa-volume-high text-[10px]"></i>
-                  )}
-                </button>
-               </>
+               <button 
+                 onClick={handlePlayAudio}
+                 disabled={isPlaying}
+                 className={`absolute -bottom-1 -right-1 w-5 h-5 sm:w-7 sm:h-7 rounded-lg flex items-center justify-center border transition-all z-20 shadow-lg ${isPlaying ? 'bg-cyan-500 border-cyan-400 animate-pulse text-white' : 'glass-card border-white/20 text-cyan-200 hover:text-white'}`}
+               >
+                 <i className={`fa-solid ${isPlaying ? 'fa-waveform-lines' : 'fa-volume-high'} text-[7px] sm:text-[9px]`}></i>
+               </button>
              )}
           </div>
         </div>
         
         <div className="min-w-0 flex-1">
-          <div className={`flex items-center gap-2 mb-1.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-            <span className={`text-[11px] font-black uppercase tracking-widest ${isUser ? 'text-indigo-400' : 'text-slate-400'}`}>
+          <div className={`flex items-center gap-2 mb-0.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+            <span className={`text-[7px] sm:text-[9px] font-black uppercase tracking-widest mono italic ${isUser ? 'text-cyan-400' : 'text-white/30'}`}>
               {isUser ? 'YOU' : config?.name}
             </span>
-            <span className="text-[9px] text-slate-600 font-bold tracking-tighter">
-              {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
+            <div className="w-0.5 h-0.5 bg-white/10 rounded-full"></div>
+            <span className="text-[6px] sm:text-[8px] text-white/10 font-black mono">{new Date(message.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}</span>
           </div>
           
-          <div className={`relative px-6 py-5 rounded-3xl shadow-2xl text-[15px] leading-relaxed whitespace-pre-wrap transition-all ${
+          <div className={`relative px-3 py-2.5 sm:px-5 sm:py-4 rounded-xl sm:rounded-2xl shadow-lg transition-all border ${
             isUser 
-              ? 'bg-gradient-to-br from-indigo-600 to-indigo-800 text-white rounded-tr-none border border-indigo-400/20 shadow-indigo-500/10' 
-              : 'bg-slate-900/90 backdrop-blur-md text-slate-100 border border-slate-700/50 rounded-tl-none shadow-black/40'
+              ? 'bg-gradient-to-br from-cyan-600/20 to-blue-800/20 text-white rounded-tr-none border-cyan-500/10' 
+              : 'glass-card text-slate-100 border-white/5 rounded-tl-none'
           }`}>
-            {renderContent(message.content)}
-            
-            {/* Subtle bubble tail */}
-            <div className={`absolute top-0 w-4 h-4 ${isUser ? '-right-2' : '-left-2'}`}>
-               <div className={`w-full h-full ${isUser ? 'bg-indigo-600' : 'bg-slate-900'} rotate-45 transform origin-top-left`}></div>
+            <div className="relative z-10">
+                {message.imageUrl && (
+                  <div className="relative mb-3 overflow-hidden rounded-lg border border-white/10 bg-black/50">
+                     <img 
+                       src={message.imageUrl} 
+                       className={`w-full max-h-[200px] sm:max-h-[350px] object-contain cursor-zoom-in transition-all ${isImgZoomed ? 'fixed inset-0 z-[200] max-h-none h-screen w-screen p-4 bg-black/98 object-contain cursor-zoom-out' : ''}`} 
+                       alt="Evidence"
+                       onClick={() => setIsImgZoomed(!isImgZoomed)}
+                     />
+                  </div>
+                )}
+                <div className="whitespace-pre-wrap">
+                  {renderContent(message.content)}
+                </div>
             </div>
           </div>
         </div>
